@@ -1,0 +1,9 @@
+1. implement '/add-item'
+2. implement '/item/<item_id>'
+	- view the information for the given item
+3. implement character creation
+	- be able to view character features (for now just name)
+	- be able to delete characters
+	- be able to edit character name
+4. add ability to add items to a specific character's inventory
+5. figure out a way to display the items in a specific characters inventory

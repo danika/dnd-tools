@@ -1,0 +1,10 @@
+
+p,h1 {
+	text-align: center;
+}
+
+.container {
+	width: auto;
+	max-width: 680px;
+	padding: 0 15px;
+}
