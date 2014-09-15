@@ -1,1 +1,69 @@
 {% extends "main.html" %}
+
+
+{% block page_content %}
+
+<form class="form-horizontal" role="form">
+  
+  {{ wtf.form_field(form.name, form_type="horizontal", horizontal_columns=('sm', 3, 8)) }}
+
+  <div class="form-group">
+    {{form.references.label(class="col-sm-3 control-label")}}
+    <div class="col-sm-4">
+    	{% for entry in form.references %}
+      		{{ entry.book(class="form control", placeholder="Player's Handbook I") }} 
+      		{{ entry.page(class="form control", placeholder="116") }}
+      	{% endfor %}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{form.weight.label(class="col-sm-3 control-label")}}
+    <div class="col-sm-8">
+    	<div class="input-group">
+    	  {{ form.weight(class="form-control", placeholder="1") }}
+    	  <span class="input-group-addon">lbs</span>
+    	</div>
+      
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{form.value.label(class="col-sm-3 control-label")}}
+    <div class="col-sm-8">
+    	<div class="input-group">
+    	  {{ form.value(class="form-control", placeholder="2") }}
+    	  <span class="input-group-addon">gp</span>
+    	</div>
+      
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{form.item_type.label(class="col-sm-3 control-label")}}
+    <div class="col-sm-8">
+      {{ form.item_type(class="form-control", placeholder="weapon") }}
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-offset-3 col-sm-8">
+      {{ form.submit(class="btn btn-primary") }}
+    </div>
+  </div>
+
+</form>
+
+
+
+
+<br>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{category}}">{{message}}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+{% endblock %}

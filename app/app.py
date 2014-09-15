@@ -74,6 +74,15 @@ def login():
 	return render_template('welcome.html', form=form, action='login', 
 		alt="<a href='/signup'>sign up</a>")
 
+@app.route('/add-item', methods=['POST', 'GET'])
+@login_required
+def add_item():
+	form = AddItemForm()
+	if form.validate_on_submit():
+		flash('Success!', 'success')
+		return redirect(url_for('add_item'))
+	return render_template('add-item.html', form=form)
+
 @app.route('/', methods=['GET'])
 @login_required
 def main():	

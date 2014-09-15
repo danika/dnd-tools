@@ -3,3 +3,4 @@ flask-bootstrap
 flask-wtf
 flask-login
 couchdb
+wtforms-html5

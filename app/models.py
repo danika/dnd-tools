@@ -34,10 +34,13 @@ class Character(Document):
 class Item(Document):
 	#required features
 	name = TextField()
-	reference = TextField() #this will become a more complicated field later on
+	references = ListField(DictField(Mapping.build(
+							book = TextField(),
+							page = TextField()))) #this will become a more complicated field later on
 	weight = DecimalField() #in lbs
 	value = DecimalField() #in gold
-	#item_type = TextField()
+	item_type = TextField()
+	
 	#weapon features
 	weapon_types = ListField(TextField()) #["simple", "light", "melee"]
 	damage = ListField(DictField(Mapping.build(
@@ -47,6 +50,7 @@ class Item(Document):
 	
 	critical = TextField()
 	range_increment = IntegerField() #in ft
+	
 	#armor features
 	armor_type = TextField()
 	armor_bonus = IntegerField()
@@ -54,10 +58,11 @@ class Item(Document):
 	armor_check_penalty = IntegerField()
 	arcane_spell_failure = IntegerField() #in %
 	movement_speed = IntegerField()
+	
 	#miscellaneous features
 	total_uses = IntegerField()
-	bonuses = ListField(DictField(Mapping.build(
-							quality = TextField(),
+	attribute_modifiers = ListField(DictField(Mapping.build(
+							attribute = TextField(),
 							modifier = TextField())))
 	#[{"quality":"listen", "modifier":"+2"}, {"quality":"spot", "modifier":"+2"}]
 	

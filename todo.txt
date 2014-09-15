@@ -7,3 +7,7 @@
 	- be able to edit character name
 4. add ability to add items to a specific character's inventory
 5. figure out a way to display the items in a specific characters inventory
+
+read this:
+
+https://github.com/mbr/flask-bootstrap/blob/master/flask_bootstrap/templates/bootstrap/wtf.html

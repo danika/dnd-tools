@@ -1,4 +1,5 @@
 {% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block styles %}
     {{super()}}
@@ -23,18 +24,22 @@
                         <li><a href="#">Create new</a></li>
                         <li class="divider"></li>
                         <li class="dropdown-header">Manage</li>
+
+                        {% block character_list %}
                         <li><a href="#">Thwac</a></li>
                         <li><a href="#">Mistagyn</a></li>
                         <li><a href="#">Snarke</a></li>
                         <li><a href="#">Yhjone</a></li>
-                        <!--{% for name in characters %}
-                        <li><a href="#">{{name}}</a></li>
-                        {% endfor %}-->
+                        {% endblock %}
+
                     </ul>
                 <li><a href="#">Browse Items</a></li>
-                <li><a href="#">Add Item</a></li>
+                <li><a href="/add-item">Add Item</a></li>
             </ul>
         </nav>
-        {% block custom-content %}{% endblock %}
+
+        {% block page_content %}
+        {% endblock %}
+
     </div>
 {% endblock %}
