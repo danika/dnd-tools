@@ -34,12 +34,10 @@ class Character(Document):
 class Item(Document):
 	#required features
 	name = TextField()
-	references = ListField(DictField(Mapping.build(
-							book = TextField(),
-							page = TextField()))) #this will become a more complicated field later on
 	weight = DecimalField() #in lbs
 	value = DecimalField() #in gold
-	item_type = TextField()
+	reference = TextField()
+	#references = ListField(DictField(Mapping.build(book = TextField(), page = TextField())))
 	
 	#weapon features
 	weapon_types = ListField(TextField()) #["simple", "light", "melee"]
@@ -53,6 +51,7 @@ class Item(Document):
 	
 	#armor features
 	armor_type = TextField()
+	body_slot = TextField()
 	armor_bonus = IntegerField()
 	max_dex_bonus = IntegerField()
 	armor_check_penalty = IntegerField()
