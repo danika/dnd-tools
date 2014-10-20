@@ -79,7 +79,7 @@ def login():
 def add_item():
 	form = AddItemForm()
 	if form.validate_on_submit():
-		flash('Success!', 'success')
+		flash('Item successfully added!', 'success')
 		return redirect(url_for('add_item'))
 	return render_template('add-item.html', form=form)
 

@@ -3,18 +3,56 @@
 
 {% block page_content %}
 
-<form class="form-horizontal" role="form" method="POST">
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{category}}">{{message}}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+
+<br>
+
+<form class="form-horizontal" role="form" method="post">
+  {{form.hidden_tag()}}
+
   {{ utils.form_field(form.name, form_type="horizontal", 
   horizontal_columns=('sm',3,8), ph="Dagger") }}
+
+  <div class="reference_fields">
+
+      <div class="form-group {% if form.references.errors %} has-error{% endif %}">
+          <label class="control-label col-sm-3" for="references-0-book">Book</label>
+          <div class="col-sm-4">
+            {{ form.references[0].book(class="form-control", placeholder="Player's Handbook I") }}
+          </div>
+
+          <label class="control-label col-sm-1" for="references-0-page">Page</label>
+          <div class="col-sm-2">
+            {{ form.references[0].page(class="form-control", placeholder="116") }}
+          </div>
+
+          <button type="button" class="btn btn-success add_reference_button">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+
+          {% for entry in form.references %}
+            {{ utils.errors_for_field(entry.book, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+            {{ utils.errors_for_field(entry.page, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+          {% endfor %}
+
+    </div>
+
+    <!--More fields will go here-->
+
+  </div>
 
   {{ utils.form_field(form.weight, form_type="horizontal", 
   horizontal_columns=('sm', 3, 8), ph="1", units="lbs") }}
 
   {{ utils.form_field(form.value, form_type="horizontal", 
   horizontal_columns=('sm', 3, 8), ph="2", units="gp") }}
-
-  {{ utils.form_field(form.reference, form_type="horizontal", 
-  horizontal_columns=('sm', 3, 8), ph="Player's Handbook I") }}
 
   <div class="form-group">
     <h4 class="control-label col-sm-3">
@@ -40,17 +78,32 @@
       {{ utils.form_field(form.weapon_types.exotic, form_type="inline") }}
     </div>
   </div>
-  
-  <div class="form-group">
-    {{ form.damage.label(class="control-label col-sm-3") }}
-  </div>
-  <div class="form-group">
-    {% for entry in form.damage %}
-        {{ utils.form_field(entry.dmg_type, form_type="horizontal", 
-        horizontal_columns=('sm',5,3), ph="piercing") }}
-        {{ utils.form_field(entry.amount, form_type="horizontal", 
-        horizontal_columns=('sm',5,3), ph="1d4") }}
-    {% endfor %}
+
+  <div class="damage_fields">
+    
+      <div class="form-group {% if form.damage.errors %} has-error{% endif %}">
+          <label class="control-label col-sm-3" for="damage-0-amount">Damage</label>
+          <div class="col-sm-2">
+            <input class="form-control" id="damage-0-amount" name="damage-0-amount" placeholder="1d4" type="text" value="">
+          </div>
+
+          <label class="control-label col-sm-1" for="damage-0-dmg_type">Type</label>
+          <div class="col-sm-4">
+            <input class="form-control" id="damage-0-dmg_type" name="damage-0-dmg_type" placeholder="piercing/slashing" type="text" value="">
+          </div>
+
+          <button type="button" class="btn btn-success add_damage_button">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+
+          {% for entry in form.damage %}
+            {{ utils.errors_for_field(entry.amount, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+            {{ utils.errors_for_field(entry.type, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+          {% endfor %}
+    </div>
+
+    <!--More fields will go here-->
+
   </div>
 
   {{ utils.form_field(form.critical, form_type="horizontal", 
@@ -86,10 +139,38 @@
   {{ utils.form_field(form.movement_speed, form_type="horizontal", 
   horizontal_columns=('sm', 3, 8), ph="20", units="ft") }}
 
+
   <div class="form-group">
     <h4 class="control-label col-sm-3">
       <small>MISC. FEATURES</small>
     </h4>
+  </div>
+
+  <div class="modifier_fields">
+    
+      <div class="form-group {% if form.attribute_modifiers.errors %} has-error{% endif %}">
+          <label class="control-label col-sm-3" for="attribute_modifiers-0-attribute">Attribute</label>
+          <div class="col-sm-3">
+            <input class="form-control" id="attribute_modifiers-0-attribute" name="attribute_modifiers-0-attribute" placeholder="spot" type="text" value="">
+          </div>
+
+          <label class="control-label col-sm-2" for="attribute_modifiers-0-modifier">Modifier</label>
+          <div class="col-sm-2">
+            <input class="form-control" id="attribute_modifiers-0-modifier" name="attribute_modifiers-0-modifier" placeholder="2" type="number" value="">
+          </div>
+
+          <button type="button" class="btn btn-success add_modifier_button">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+
+          {% for entry in form.attribute_modifiers %}
+            {{ utils.errors_for_field(entry.attribute, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+            {{ utils.errors_for_field(entry.modifier, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+          {% endfor %}
+    </div>
+
+    <!--More fields will go here-->
+
   </div>
 
   {{ utils.form_field(form.total_uses, form_type="horizontal", 
@@ -106,16 +187,144 @@
 
 </form>
 
+{% endblock %}
+
+{% block scripts %}
+
+  {{ super() }}
+
+  <script>
+
+  $(document).ready(function() {
+
+      var reference_wrapper = $(".reference_fields");
+      var add_reference_button = $(".add_reference_button");
+      var num_ref_fields = 1;
+
+      $(add_reference_button).click(function(e){ //on add input button click
+          e.preventDefault();
+          if(num_ref_fields < 3){ //max input box allowed
+              var field_group = $('<div class="form-group">');
+
+              $('<label class="control-label col-sm-3" for="references-' + num_ref_fields + '-book">Book</label>').appendTo(field_group);
+              var first_field = $('<div class="col-sm-4">');
+              $('<input>').attr({class:'form-control',
+                                id: 'references-' + num_ref_fields + '-book',
+                                name: 'references-' + num_ref_fields + '-book',
+                                type: 'text',
+                                value: ''
+                                }).appendTo(first_field);
+              $(first_field).appendTo(field_group);
+
+              $('<label class="control-label col-sm-1" for="references-' + num_ref_fields + '-page">Page</label>').appendTo(field_group);
+              var second_field = $('<div class="col-sm-2">');
+              $('<input>').attr({class:'form-control',
+                                id: 'references-' + num_ref_fields + '-page',
+                                name: 'references-' + num_ref_fields + '-page',
+                                type: 'text',
+                                value: ''
+                                }).appendTo(second_field);
+              $(second_field).appendTo(field_group);
+
+              //remove button
+              $(field_group).append('<button type="button" class="btn btn-default remove_reference_button"><span class="glyphicon glyphicon-remove"></span></button>');
+              $(field_group).appendTo(reference_wrapper);              
+              num_ref_fields++; //text box increment
+          }
+      });
+      
+      $(reference_wrapper).on("click", ".remove_reference_button", function(e){
+        e.preventDefault(); 
+        $(this).parent('div').remove(); 
+        num_ref_fields--;
+      });
+      
+      var damage_wrapper = $(".damage_fields");
+      var add_damage_button = $(".add_damage_button");
+      var num_dmg_fields = 1;
+
+      $(add_damage_button).click(function(e){ //on add input button click
+          e.preventDefault();
+          if(num_dmg_fields < 6){ //max input box allowed
+              var field_group = $('<div class="form-group">');
+
+              $('<label class="control-label col-sm-3" for="damage-' + num_dmg_fields + '-amount">Damage</label>').appendTo(field_group);
+              var first_field = $('<div class="col-sm-2">');
+              $('<input>').attr({class:'form-control',
+                                id: 'damage-' + num_dmg_fields + '-amount',
+                                name: 'damage-' + num_dmg_fields + '-amount',
+                                type: 'text',
+                                value: ''
+                                }).appendTo(first_field);
+              $(first_field).appendTo(field_group);
+
+              $('<label class="control-label col-sm-1" for="damage-' + num_dmg_fields + '-dmg_type">Type</label>').appendTo(field_group);
+              var second_field = $('<div class="col-sm-4">');
+              $('<input>').attr({class:'form-control',
+                                id: 'damage-' + num_dmg_fields + '-dmg_type',
+                                name: 'damage-' + num_dmg_fields + '-dmg_type',
+                                type: 'text',
+                                value: ''
+                                }).appendTo(second_field);
+              $(second_field).appendTo(field_group);
+
+              //remove button
+              $(field_group).append('<button type="button" class="btn btn-default remove_damage_button"><span class="glyphicon glyphicon-remove"></span></button>');
+              $(field_group).appendTo(damage_wrapper);
+              num_dmg_fields++; //text box increment
+          }
+      });
+      
+      $(damage_wrapper).on("click", ".remove_damage_button", function(e){
+        e.preventDefault(); 
+        $(this).parent('div').remove(); 
+        num_dmg_fields--;
+      });
+
+      var modifier_wrapper = $(".modifier_fields");
+      var add_modifier_button = $(".add_modifier_button");
+      var num_mod_fields = 1;
+
+      $(add_modifier_button).click(function(e){ //on add input button click
+          e.preventDefault();
+          if(num_mod_fields < 10){ //max input box allowed
+              var field_group = $('<div class="form-group">');
+
+              $('<label class="control-label col-sm-3" for="attribute_modifiers-' + num_mod_fields + '-attribute">Attribute</label>').appendTo(field_group);
+              var first_field = $('<div class="col-sm-3">');
+              $('<input>').attr({class:'form-control',
+                                id: 'attribute_modifiers-' + num_mod_fields + '-attribute',
+                                name: 'attribute_modifiers-' + num_mod_fields + '-attribute',
+                                type: 'text',
+                                value: ''
+                                }).appendTo(first_field);
+              $(first_field).appendTo(field_group);
+
+              $('<label class="control-label col-sm-2" for="references-' + num_mod_fields + '-modifier">Modifier</label>').appendTo(field_group);
+              var second_field = $('<div class="col-sm-2">');
+              $('<input>').attr({class:'form-control',
+                                id: 'attribute_modifiers-' + num_mod_fields + '-modifier',
+                                name: 'attribute_modifiers-' + num_mod_fields + '-modifier',
+                                type: 'number',
+                                value: ''
+                                }).appendTo(second_field);
+              $(second_field).appendTo(field_group);
+
+              //remove button
+              $(field_group).append('<button type="button" class="btn btn-default remove_modifier_button"><span class="glyphicon glyphicon-remove"></span></button>');
+              $(field_group).appendTo(modifier_wrapper);              
+              num_mod_fields++; //text box increment
+          }
+      });
+      
+      $(modifier_wrapper).on("click", ".remove_modifier_button", function(e){
+        e.preventDefault(); 
+        $(this).parent('div').remove(); 
+        num_mod_fields--;
+      });
 
 
-
-<br>
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{category}}">{{message}}</div>
-    {% endfor %}
-{% endif %}
-{% endwith %}
+  });
+  </script>
 
 {% endblock %}

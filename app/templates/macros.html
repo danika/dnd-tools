@@ -13,7 +13,17 @@
 {% endif %}
 {% endmacro %}
 
+{% macro errors_for_field(field, horizontal_columns, form_type) %}
 
+{%- if field.errors %}
+  {%- for error in field.errors %}
+    {% call _hz_form_wrap(horizontal_columns, form_type) %}
+      <p class="help-block">{{error}}</p>
+    {% endcall %}
+  {%- endfor %}
+{%- endif %}
+
+{% endmacro %}
 
 
 {% macro form_field(field,

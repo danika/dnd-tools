@@ -1,5 +1,6 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, FieldList, FormField, TextAreaField, SelectField
+from wtforms import Form as NoCSRFForm
 from wtforms.validators import *
 from wtforms_html5 import IntegerField, DecimalField
 
@@ -17,11 +18,11 @@ class LoginForm(Form):
 	pwd = PasswordField('Password', validators=[InputRequired()])
 	login = SubmitField('Login')
 
-#class ReferenceForm(Form):
-#	book = StringField('Book', validators=[InputRequired()])
-#	page = StringField('Page', validators=[InputRequired(), Regexp('^[A-Za-z0-9]+$', 0, 'Letters and numbers only.')])
+class ReferenceForm(NoCSRFForm):
+	book = StringField('Book', validators=[InputRequired(message='Must enter a reference book.')])
+	page = StringField('Page', validators=[InputRequired(message='Must enter a reference page.')])
 
-class WeaponTypesForm(Form):
+class WeaponTypesForm(NoCSRFForm):
 	unarmed = BooleanField('unarmed', validators=[Optional()])
 	light = BooleanField('light', validators=[Optional()])
 	melee = BooleanField('melee', validators=[Optional()])
@@ -32,22 +33,21 @@ class WeaponTypesForm(Form):
 	martial = BooleanField('martial', validators=[Optional()])
 	exotic = BooleanField('exotic', validators=[Optional()])
 
-class WeaponDamageForm(Form):
+class WeaponDamageForm(NoCSRFForm):
 	dmg_type = StringField('Type', 
 		validators=[Optional(), Regexp('^[a-z ]+$', 0, 'Lowercase letters and spaces only.')])
 	amount = StringField('Amount')
 
-class AttributeModForm(Form):
+class AttributeModForm(NoCSRFForm):
 	attribute = StringField('Attribute', validators=[Regexp('^[a-z ]+$', 0, 'Lowercase letters and spaces only.')])
 	modifier = IntegerField('Modifier')
 
 class AddItemForm(Form):
 	#required features
-	name = StringField('Item Name', validators=[InputRequired()])
+	name = StringField('Name', validators=[InputRequired()])
+	references = FieldList(FormField(ReferenceForm), 'References', min_entries=1)
 	weight = DecimalField('Weight', validators=[NumberRange(min=0)], places=2)
 	value = DecimalField('Value', validators=[NumberRange(min=0)], places=2)
-	reference = StringField('Reference', validators=[InputRequired()])
-#	references = FieldList(FormField(ReferenceForm), 'References', min_entries=1, validators=[InputRequired()])
 	
 	#weapon features
 	weapon_types = FormField(WeaponTypesForm, 'Weapon Types')
@@ -63,7 +63,7 @@ class AddItemForm(Form):
 				 ("medium", "medium"),
 				 ("heavy", "heavy"),
 				 ("shield", "shield"),
-				 ("miscellaneous", "miscellaneous")])
+				 ("other", "other")])
 	body_slot = SelectField('Body Slot', validators=[Optional()], 
 		choices=[("", "none"),
 				 ("body", "body"),
@@ -81,12 +81,11 @@ class AddItemForm(Form):
 	max_dex_bonus = IntegerField('Max Dex Bonus', validators=[Optional(), NumberRange(min=0)])
 	armor_check_penalty = IntegerField('Armor Check Penalty', validators=[Optional(), NumberRange(max=0)]) #negative numbers
 	arcane_spell_failure = IntegerField('Arcane Spell Failure', validators=[Optional(), NumberRange(min=0, max=100)]) #in %
-	movement_speed = IntegerField('Movement Speed', description="For creatures with a normal movement speed of 30 ft.", validators=[Optional(), NumberRange(min=0)])
+	movement_speed = IntegerField('Movement Speed', description="(For creatures with a normal movement speed of 30 ft.)", validators=[Optional(), NumberRange(min=0)])
 	
 	#miscellaneous features
-	total_uses = IntegerField('Total Uses', validators=[Optional(), NumberRange(min=0)])
 	attribute_modifiers = FieldList(FormField(AttributeModForm), 'Attribute Modifiers', validators=[Optional()])
-	relevant_spells = FieldList(StringField('Relevant Spell', validators=[Regexp('^[A-Za-z ]+$', 0, 'Lowercase letters only.')]), validators=[Optional()])
+	total_uses = IntegerField('Total Uses', validators=[Optional(), NumberRange(min=0)])
 	description = TextAreaField('Description', validators=[Optional()])
 	submit = SubmitField('Submit')
 
