@@ -1,0 +1,90 @@
+{% extends "main.html" %}
+{% import "macros.html" as utils %}
+
+{% block page_content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{category}}">{{message}}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<br>
+<p class="lead">Enter your desired item properties.</p>
+
+
+<form class="form-horizontal" role="form" method="get">
+
+  <div class="text_fields">
+
+      <div class="form-group {% if form.text_searches.errors %} has-error{% endif %}">
+          <div class="col-sm-4">
+            {{ form.text_searches[0].field_choice(class="form-control") }}
+          </div>
+
+          <div class="col-sm-3">
+            {{ form.text_searches[0].operator_choice(class="form-control") }}
+          </div>
+
+          <div class="col-sm-4">
+            {{ form.text_searches[0].user_input(class="form-control", placeholder="enter text here") }}
+          </div>
+
+          <button type="button" class="btn btn-success add_textsearch_button">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+
+          {% for entry in form.text_searches %}
+            {{ utils.errors_for_field(entry.field_choice, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+            {{ utils.errors_for_field(entry.operator_choice, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+            {{ utils.errors_for_field(entry.user_input, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+          {% endfor %}
+
+    </div>
+
+    <!--More fields will go here-->
+
+  </div>
+
+  <div class="number_fields">
+
+      <div class="form-group {% if form.text_searches.errors %} has-error{% endif %}">
+          <div class="col-sm-4">
+            {{ form.number_searches[0].field_choice(class="form-control") }}
+          </div>
+
+          <div class="col-sm-3">
+            {{ form.number_searches[0].operator_choice(class="form-control") }}
+          </div>
+
+          <div class="col-sm-4">
+            {{ form.number_searches[0].user_input(class="form-control", placeholder="enter number here") }}
+          </div>
+
+          <button type="button" class="btn btn-success add_textsearch_button">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+
+          {% for entry in form.number_searches %}
+            {{ utils.errors_for_field(entry.field_choice, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+            {{ utils.errors_for_field(entry.operator_choice, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+            {{ utils.errors_for_field(entry.user_input, horizontal_columns=('sm',3,8), form_type="horizontal") }}
+          {% endfor %}
+
+    </div>
+
+    <!--More fields will go here-->
+
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-offset-3 col-sm-6">
+      {{ form.submit(class="btn btn-primary btn-block") }}
+    </div>
+  </div>
+
+</form>
+
+{% endblock %}

@@ -19,6 +19,7 @@ login_manager.login_view = '/login'
 def load_user(user_id):
     return User.load(users_db, str(user_id))
 
+#database.view('category/viewname',key='')
 def get_user_id(email):
 	vr = users_db.view('search/email', key=email)
 	if vr.rows:
@@ -26,10 +27,14 @@ def get_user_id(email):
 	else:
 		return None
 
+def parse_dict_list(entries):
+	parsed_list = list()
+	for entry in entries:
+		parsed_list.append(entry.data)
+	return parsed_list
+
 
 #------Views-------
-
-#database.view('category/viewname',key='')
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -79,9 +84,52 @@ def login():
 def add_item():
 	form = AddItemForm()
 	if form.validate_on_submit():
+		#make new item
+
+		#parse weapon types
+		weapon_types_dict = form.weapon_types.data
+		weapon_types = list()
+		for choice in weapon_types_dict.keys():
+			if weapon_types_dict[choice] == True:
+				weapon_types.append(choice)
+
+
+		new_item = Item(name=form.name.data,
+						references=parse_dict_list(form.references.entries),
+						weight=form.weight.data,
+						value=form.value.data,
+						weapon_types=weapon_types,
+						damage=parse_dict_list(form.damage.entries),
+						critical=form.critical.data,
+						range_increment=form.range_increment.data,
+						armor_type=form.armor_type.data,
+						body_slot=form.body_slot.data,
+						armor_bonus=form.armor_bonus.data,
+						max_dex_bonus=form.max_dex_bonus.data,
+						armor_check_penalty=form.armor_check_penalty.data,
+						arcane_spell_failure=form.arcane_spell_failure.data,
+						movement_speed=form.movement_speed.data,
+						attribute_modifiers=parse_dict_list(form.attribute_modifiers.entries),
+						total_uses=form.total_uses.data,
+						description=form.description.data)	
+
+		new_item.store(items_db)
+
+		#inform user of their success
 		flash('Item successfully added!', 'success')
 		return redirect(url_for('add_item'))
 	return render_template('add-item.html', form=form)
+
+@app.route('/browse', methods=['GET'])
+def browse():
+	form = BrowseForm()
+	return render_template('browse.html', form=form)
+
+@app.route('/item/<item_id>', methods=['GET'])
+def item(item_id):
+	#get the item document for the id
+
+	return render_template('browse.html')
 
 @app.route('/', methods=['GET'])
 @login_required

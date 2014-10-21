@@ -18,6 +18,43 @@ class LoginForm(Form):
 	pwd = PasswordField('Password', validators=[InputRequired()])
 	login = SubmitField('Login')
 
+
+class TextSearchForm(Form):
+	field_choice = SelectField('Choice', 
+		choices=[("name", "name"),
+				("book", "book"),
+				("critical", "critical"),
+				("armor_type", "armor type"),
+				("body_slot", "body slot"),
+				("description", "description")])
+	operator_choice = SelectField('Operator', 
+		choices=[("exactly like", "exactly like"),
+				("similar_to", "similar to")])
+	user_input = StringField('Input')
+
+class NumberSearchForm(Form):
+	field_choice = SelectField('Choice', 
+		choices=[("weight", "weight"),
+				("value", "value"),
+				("range_increment", "range increment"),
+				("armor_bonus", "armor bonus"),
+				("max_dex_bonus", "max dex bonus"),
+				("armor_check_penalty", "armor check penalty"),
+				("arcane_spell_failure", "arcane spell failure"),
+				("movement_speed", "movement speed")])
+	operator_choice = SelectField('Operator', 
+		choices=[("equals", "="),
+				("greater_than", ">"),
+				("less_than", "<")])
+	user_input = DecimalField('Input')
+
+
+class BrowseForm(Form):
+	text_searches = FieldList(FormField(TextSearchForm), 'Text', validators=[Optional()], min_entries=1)
+	number_searches = FieldList(FormField(NumberSearchForm), 'Numbers', validators=[Optional()], min_entries=1)
+	submit = SubmitField('Search')
+
+
 class ReferenceForm(NoCSRFForm):
 	book = StringField('Book', validators=[InputRequired(message='Must enter a reference book.')])
 	page = StringField('Page', validators=[InputRequired(message='Must enter a reference page.')])
@@ -46,8 +83,8 @@ class AddItemForm(Form):
 	#required features
 	name = StringField('Name', validators=[InputRequired()])
 	references = FieldList(FormField(ReferenceForm), 'References', min_entries=1)
-	weight = DecimalField('Weight', validators=[NumberRange(min=0)], places=2)
-	value = DecimalField('Value', validators=[NumberRange(min=0)], places=2)
+	weight = DecimalField('Weight', validators=[InputRequired(), NumberRange(min=0)], places=2)
+	value = DecimalField('Value', validators=[InputRequired(), NumberRange(min=0)], places=2)
 	
 	#weapon features
 	weapon_types = FormField(WeaponTypesForm, 'Weapon Types')
